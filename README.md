@@ -1,8 +1,6 @@
 # 🏥 HealthGuard System
 
-Patient Satisfaction Intelligence Platform
-
-Transform raw patient feedback into actionable healthcare intelligence using NLP, sentiment analysis, priority scoring, and automated insight generation.
+Patient Satisfaction Intelligence Platform - Transform raw patient feedback into actionable healthcare intelligence using NLP, sentiment analysis, priority scoring, and automated insight generation.
 
 ---
 
@@ -22,8 +20,9 @@ The platform combines:
 to convert unstructured patient feedback into measurable operational insights.
 
 ---
-
-<img width="1536" height="1024" alt="ChatGPT Image May 7, 2026, 03_47_45 AM" src="https://github.com/user-attachments/assets/ffd407c7-8c67-431c-bbaf-9dffe244f4b3" />
+## Live Demo : https://healthguard-system-zrgg.onrender.com/
+---
+<img width="1536" height="1024" alt="ChatGPT Image Jun 22, 2026, 01_05_14 PM" src="https://github.com/user-attachments/assets/e48041ac-d9fd-4602-87d5-e814a9d14e21" />
 
 # ✨ Core Features
 
@@ -363,16 +362,6 @@ The system accepts only healthcare-related patient satisfaction datasets.
 
 ---
 
-# 🎯 Use Cases
-
-* Hospital patient satisfaction monitoring
-* Healthcare quality assurance
-* Clinical operations analysis
-* Complaint management systems
-* Healthcare service benchmarking
-* Executive healthcare reporting
-
----
 
 # 📌 Future Enhancements
 
