@@ -50,7 +50,13 @@ An operational workflow may need to know:
 
 HealthGuard was built around these questions.
 
----
+## Demo Visuals 
+
+<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 37 29 AM" src="https://github.com/user-attachments/assets/15e66c33-4b17-486d-b5b1-d8e2d185d383" />
+<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 37 49 AM" src="https://github.com/user-attachments/assets/1f1c0b5c-e603-4710-993f-84ff95513851" />
+<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 37 53 AM" src="https://github.com/user-attachments/assets/69309088-cddc-486e-bdef-6ca6f411d8bc" />
+<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 38 10 AM" src="https://github.com/user-attachments/assets/90d36274-b8c3-431e-bdf3-25965c39fb50" />
+<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 38 22 AM" src="https://github.com/user-attachments/assets/f98129d8-cbd2-48b3-bedc-61698a39efd1" />
 
 # System Architecture
 
