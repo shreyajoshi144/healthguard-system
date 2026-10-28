@@ -80,19 +80,11 @@ def build_splits(
         logger.warning("Dropping %d rows with rare classes (<3 samples) before splitting", dropped)
     df = df[df[LABEL_COLUMN].isin(valid_classes)].reset_index(drop=True)
 
-    # DATA-QUALITY FINDING (Phase 3A): training/generate_sample_data.py
-    # composes each row from a small fixed pool of sentence fragments
-    # (see CATEGORY_TEMPLATES there), so a large fraction of rows share
-    # EXACT duplicate feedback_text — out of 900 source rows, only ~353 are
-    # textually unique. A naive random split ignores this and happily puts
-    # the same exact sentence in both train and test, which is genuine
-    # leakage (the model isn't generalizing to unseen text, it's
-    # recognizing text it memorized verbatim during training). This is
-    # deduplicated HERE, in the new Phase 3A split logic only — the source
-    # CSV, training/generate_sample_data.py, and
-    # modules/ml_issue_classifier.py's own internal split are all left
-    # exactly as they were; this does not retrain or alter the existing
-    # baseline, only how this SEPARATE evaluation split is built.
+    # training/generate_sample_data.py builds rows from a small pool of
+    # sentence fragments, so only ~353 of 900 rows have unique feedback_text.
+    # Deduplicate before splitting so the same sentence can't land in both
+    # train and test (verbatim leakage). Only this evaluation split is
+    # affected; the source CSV and the production classifier are not.
     df["_normalized_text"] = df[TEXT_COLUMN].apply(_normalize_text)
     n_before_dedup = len(df)
     df = df.drop_duplicates(subset="_normalized_text", keep="first").reset_index(drop=True)

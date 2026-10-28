@@ -38,7 +38,6 @@ def _summarize_text(text: str, sentences: int = 3) -> str:
             sentence_str = str(sentence).strip()
             sentence_lower = sentence_str.lower()
             
-            # Skip if we've seen this exact sentence
             if sentence_lower in seen_sentences:
                 continue
             
@@ -58,7 +57,6 @@ def _summarize_text(text: str, sentences: int = 3) -> str:
                 unique_sentences.append(sentence_str)
                 seen_sentences.add(sentence_lower)
             
-            # Stop when we have enough unique sentences
             if len(unique_sentences) >= sentences:
                 break
         

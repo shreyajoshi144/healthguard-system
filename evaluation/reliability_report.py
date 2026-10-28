@@ -181,7 +181,7 @@ def _run_disagreement(val_df, test_df, challenge_df) -> dict:
 def _frozen_artifact_hashes() -> dict:
     return {
         "production": {
-            "vectorizer_sha256": None,  # production model not touched by Phase 3C; included for completeness only if present
+            "vectorizer_sha256": None,  # informational only; the production model is not modified here
         },
         "benchmark": {
             "vectorizer_sha256": _file_sha256(benchmark_mod.BENCHMARK_VECTORIZER_PATH),

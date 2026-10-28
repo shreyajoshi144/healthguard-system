@@ -176,7 +176,7 @@ body.workspace-body {
   .workspace-content { padding: 22px 20px 48px; }
 }
 
-/* ── Reused panel/kpi/table classes from the old dashboard.css ── */
+/* ── Panels, KPIs, tables ───────────────────────────────────── */
 
 .upload-widget {
   display: flex;

@@ -184,10 +184,8 @@ def run_evaluation(rebuild_splits: bool = False, rebuild_challenge: bool = False
 
     if rebuild_challenge or not challenge_mod.CHALLENGE_SET_PATH.exists():
         challenge_mod.write_challenge_set()
-    # keep_default_na=False: one of the (unmodified) challenge-set examples'
-    # feedback_text is the literal string "N/A" — pandas' default na_values
-    # would otherwise silently read it as a missing value. Read-side fix
-    # only; the CSV on disk is untouched.
+    # keep_default_na=False: one challenge-set example's feedback_text is the
+    # literal string "N/A", which pandas would otherwise read as NaN.
     challenge_df = pd.read_csv(challenge_mod.CHALLENGE_SET_PATH, keep_default_na=False, na_values=[])
     challenge_df["secondary_issues_list"] = challenge_df["secondary_issues"].apply(decode_secondary_issues)
     print(f"Train: {len(split_data['train'])}  Val: {len(split_data['val'])}  "
@@ -264,14 +262,9 @@ def run_evaluation(rebuild_splits: bool = False, rebuild_challenge: bool = False
           f"hamming_loss={multilabel_result['hamming_loss']:.4f}")
     print("[NOTE] Scaffold only — see multilabel_result.scaffold_notice in the JSON report.")
 
-    # ── 6. Assemble the full report ───────────────────────────────────────
     # ── 6. Attach the benchmark baseline's results, clearly separated ────
-    # Read-only: this reads the benchmark artifact's own persisted report
-    # (evaluation/benchmark_model.py) if one exists. It does NOT train or
-    # re-evaluate anything here — that keeps this function fast and
-    # decoupled from the (separate) benchmark training step. If the
-    # benchmark hasn't been run yet, this section is simply omitted rather
-    # than failing the whole report.
+    # Read-only: uses the persisted report from evaluation/benchmark_model.py
+    # if one exists, without retraining. Omitted if the benchmark hasn't run.
     benchmark_baseline_section = None
     benchmark_report_path = EVAL_RESULTS_DIR / "latest_benchmark_evaluation.json"
     if benchmark_report_path.exists():
@@ -295,8 +288,8 @@ def run_evaluation(rebuild_splits: bool = False, rebuild_challenge: bool = False
             benchmark_report_path,
         )
 
-    # ── 7. Attach the Phase 3B semantic baseline + comparison, likewise
-    # read-only and additive. Omitted entirely if Phase 3B hasn't been run.
+    # ── 7. Attach the semantic baseline + comparison, likewise read-only.
+    # Omitted if evaluation/semantic_model.py hasn't been run.
     semantic_baseline_section = None
     semantic_report_path = EVAL_RESULTS_DIR / "latest_semantic_evaluation.json"
     if semantic_report_path.exists():

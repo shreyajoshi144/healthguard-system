@@ -11,7 +11,6 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.drop_duplicates()
 
-    # Standardize column names
     df.columns = (df.columns
                   .str.strip()
                   .str.lower()
@@ -43,7 +42,6 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
                 mode_val = df[col].mode()
                 df[col] = df[col].fillna(mode_val[0] if len(mode_val) else "Unknown")
 
-    # Clip rating columns to valid range (1-5)
     for col in df.columns:
         if "rating" in col and df[col].dtype in [np.float64, np.int64]:
             df[col] = df[col].clip(1, 5)

@@ -73,7 +73,7 @@ def install_fake(monkeypatch, provider):
 
 def test_lab_report_extracts_only_explicit_fact_and_preserves_evidence(monkeypatch, tmp_path):
     Session=make_db(); db,user,patient,doc,job,storage=seed(Session,tmp_path,b"LAB REPORT\nHemoglobin: 13.2 g/dL\nGlucose: not reported")
-    # Replace Phase 1 extractor with a deterministic text block source for this domain test.
+    # Use a deterministic text block instead of the real extractor.
     db.add(DocumentTextBlock(document_id=doc.id,page_number=2,block_index=0,source_text="Hemoglobin: 13.2 g/dL",extraction_method="PDF_TEXT",confidence=1.0)); db.commit()
     install_fake(monkeypatch, FakeMedicalProvider()); monkeypatch.setattr("jobs.worker.storage", storage)
     # The existing extractor does not support text/plain, so seed evidence and call analysis directly.

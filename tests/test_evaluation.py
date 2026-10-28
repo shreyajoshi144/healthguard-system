@@ -374,10 +374,8 @@ class TestEvaluatePipeline(unittest.TestCase):
             report = run_evaluation()
         test_acc = report["results"]["test_split"]["accuracy"]
         challenge_acc = report["results"]["challenge_set"]["accuracy"]
-        # Not asserting a specific value (that would be gaming the test to
-        # match whatever the model currently does) — just that the two are
-        # computed and reported independently, which is the actual Phase 3A
-        # requirement.
+        # Deliberately no specific value: only that both are computed and
+        # reported independently.
         self.assertIsInstance(test_acc, float)
         self.assertIsInstance(challenge_acc, float)
 

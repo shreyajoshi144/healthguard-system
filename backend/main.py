@@ -181,13 +181,10 @@ app.include_router(admin_router)
 app.include_router(reminders_router)
 app.include_router(privacy_router)
 
-# FastAPI serves the frontend itself, so the deployed app is same-origin —
-# the browser never needs cross-origin API access in normal use. CORS is
-# restricted accordingly instead of the previous wildcard ("*"), which is
-# unnecessary (and a needless attack-surface widener) for a same-origin app.
-# CORS_ALLOWED_ORIGINS can be set to a comma-separated list to explicitly
-# allow additional origins (e.g. a separately-hosted frontend); it defaults
-# to common local-dev origins only.
+# FastAPI serves the frontend itself, so the deployed app is same-origin and
+# CORS stays restricted. CORS_ALLOWED_ORIGINS (comma-separated) can allow
+# additional origins, e.g. a separately hosted frontend; it defaults to the
+# local-dev origins only.
 _env_name=os.getenv("APP_ENV","development").lower()
 _default_origins = "http://localhost:8000,http://127.0.0.1:8000"
 _allowed_origins = [o.strip().rstrip("/") for o in os.environ.get("CORS_ALLOWED_ORIGINS", _default_origins).split(",") if o.strip()]
@@ -612,7 +609,7 @@ if FRONTEND_DIR.exists():
     def serve_models():
         return _serve("models.html")
 
-    # Legacy Phase-2 URLs kept as redirects so old links/bookmarks don't 404.
+    # Old URLs kept as redirects so existing links/bookmarks don't 404.
     @app.get("/dashboard.html")
     def legacy_dashboard():
         return RedirectResponse(url="/workspace")

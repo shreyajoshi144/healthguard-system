@@ -48,7 +48,7 @@ PROCESSED_DIR  = "data/processed"
 LOG_DIR        = "logs"
 ASSETS_DIR     = "assets"
 
-# ── Phase 3A: evaluation / data-contract paths ──────────────────────────────────
+# ── Evaluation / data-contract paths ────────────────────────────────────────────
 SPLITS_DIR = PROJECT_ROOT / "data" / "splits"
 CHALLENGE_SET_PATH = PROJECT_ROOT / "data" / "challenge_set.csv"
 EVAL_RESULTS_DIR = PROJECT_ROOT / "evaluation" / "results"

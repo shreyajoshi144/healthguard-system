@@ -158,18 +158,13 @@ def train_benchmark(random_state: int = RANDOM_SEED, force_rebuild_splits: bool 
             "the challenge set must already exist (not regenerated here) — run "
             "`python -m evaluation.challenge_set` if this is a fresh checkout."
         )
-    # keep_default_na=False: one of the existing (unmodified) challenge-set
-    # examples' feedback_text is the literal string "N/A" (a deliberate
-    # low_information test case) — pandas' default na_values list treats
-    # "N/A" as a missing-value marker and would silently turn it into NaN
-    # on read, breaking that row. This changes only how THIS module parses
-    # the file; the CSV on disk is untouched.
+    # keep_default_na=False: one challenge-set example's feedback_text is the
+    # literal string "N/A" (a deliberate low_information case), which pandas
+    # would otherwise read as NaN.
     challenge_df = pd.read_csv(challenge_path, keep_default_na=False, na_values=[])
 
-    # Defensive re-verification (cheap, and this is exactly the kind of
-    # mistake this correction exists to catch): confirm the four sets are
-    # still mutually disjoint before trusting anything trained/evaluated
-    # below. Does not regenerate or alter any of them.
+    # Confirm the four sets are still mutually disjoint before trusting
+    # anything trained/evaluated below.
     leakage_checks.assert_no_split_leakage({
         "train": split_data["train"]["feedback_text"],
         "val": split_data["val"]["feedback_text"],

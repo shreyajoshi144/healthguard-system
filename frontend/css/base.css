@@ -374,7 +374,7 @@ img { max-width: 100%; display: block; }
 }
 
 
-/* Accessibility: a visible keyboard focus indicator on every interactive control (previously defined only for text inputs). */
+/* Accessibility: a visible keyboard focus indicator on every interactive control. */
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, [tabindex]:focus-visible {
   outline: 3px solid #1d4ed8; outline-offset: 2px;
 }
