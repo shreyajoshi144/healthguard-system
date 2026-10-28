@@ -18,7 +18,10 @@ for path, resource in NLTK_RESOURCES:
     except LookupError:
         nltk.download(resource, quiet=True)
 logger = get_logger(__name__)
-STOP_WORDS = set(stopwords.words("english"))
+try:
+    STOP_WORDS = set(stopwords.words("english"))
+except LookupError:
+    STOP_WORDS = {"the","a","an","and","or","but","if","then","than","of","to","in","on","for","with","is","are","was","were","be","been","this","that","it","as","at","by","from","not","no"}
 lemmatizer = WordNetLemmatizer()
 
 def clean_text(text: str) -> str:
@@ -29,7 +32,11 @@ def clean_text(text: str) -> str:
     text = re.sub(r"[^a-z\s]", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     tokens = text.split()
-    tokens = [lemmatizer.lemmatize(t) for t in tokens if t not in STOP_WORDS and len(t) > 2]
+    filtered = [t for t in tokens if t not in STOP_WORDS and len(t) > 2]
+    try:
+        tokens = [lemmatizer.lemmatize(t) for t in filtered]
+    except LookupError:
+        tokens = filtered
     return " ".join(tokens)
 
 def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:

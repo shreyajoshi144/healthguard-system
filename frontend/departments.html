@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Departments — HealthGuard Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/workspace.css" />
+</head>
+<body class="workspace-body">
+  <div class="workspace-shell" id="workspaceShell">
+    <aside class="sidebar">
+      <a href="/workspace" class="brand">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5 6.5 5 12.5C5 17.5 8.5 21 12 21C15.5 21 19 17.5 19 12.5C19 6.5 12 3 12 3Z" stroke="currentColor" stroke-width="1.6"/><path d="M12 8V16M9 12H15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        HealthGuard
+      </a>
+      <ul class="sidebar-nav">
+        <li><a href="/workspace" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>Overview</a></li>
+        <li><a href="/analyze" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4v16h16M8 15l3-4 3 3 4-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Analyze</a></li>
+        <li><a href="/insights" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Insights</a></li>
+        <li><a href="/departments" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h2M14 8h2M8 12h2M14 12h2M8 16h2M14 16h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Departments</a></li>
+        <li><a href="/models" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M4.5 19.5l2-2M17.5 6.5l2-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Models</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-initial" id="hgUserInitial">?</div>
+          <div class="sidebar-user-name" id="hgUserName">…</div>
+        </div>
+        <button class="sidebar-logout" data-logout>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Log out
+        </button>
+      </div>
+    </aside>
+
+    <div class="workspace-main">
+      <header class="topbar">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <div>
+          <span class="eyebrow">Workspace</span>
+          <h1>Department Intelligence</h1>
+          <p>Compare response volume, sentiment, and critical case load across every department in the current dataset.</p>
+        </div>
+      </header>
+
+      <main class="workspace-content">
+        <div id="emptyState" class="empty-state">
+          <div class="glyph"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h2M14 8h2M8 12h2M14 12h2M8 16h2M14 16h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+          <h3>No dataset loaded yet</h3>
+          <p>Upload a CSV from the Overview page to see department breakdowns here.</p>
+          <a href="/workspace" class="btn btn-primary btn-sm">Go to Overview</a>
+        </div>
+
+        <div id="deptContent" style="display:none;">
+          <div class="dash-grid halves">
+            <div class="card panel reveal">
+              <div class="panel-head"><h3>Average Rating by Department</h3></div>
+              <div id="avgRatingBars"></div>
+            </div>
+            <div class="card panel reveal">
+              <div class="panel-head"><h3>Critical Issues by Department</h3></div>
+              <div id="criticalBars"></div>
+            </div>
+          </div>
+
+          <div class="card panel reveal">
+            <div class="panel-head">
+              <h3>Department Performance</h3>
+              <span class="muted">Sorted by response volume</span>
+            </div>
+            <table class="dept-table" id="deptTable">
+              <thead>
+                <tr><th>Department</th><th>Responses</th><th>Avg Rating</th><th>Positive %</th><th>Negative %</th><th>Top Issue</th><th>Critical</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/departments.js"></script>
+</body>
+</html>

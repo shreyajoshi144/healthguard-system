@@ -1,889 +1,259 @@
-# HealthGuard system 
+# HealthGuard
 
-## Reliability-aware analysis of patient feedback
+**A patient-owned health record you can ask questions of, where every AI answer has to prove itself against the record or be refused.**
 
-HealthGuard is an NLP and machine-learning application for converting unstructured patient-experience feedback into structured issue information.
+HealthGuard turns the scattered paperwork of a person's health (lab reports, prescriptions, discharge summaries, clinic notes) into one
+structured, evidence-linked record. A patient, a family member or a doctor can then ask plain-language questions such as *"What was my last
+HbA1c?"* or *"When did I start metformin?"* and get an answer **only if it can be traced to a specific page of a specific document**. Anything
+the record cannot support, and anything that amounts to a diagnosis, a prescription or a dose change, is declined.
 
-The project goes beyond the usual pipeline of:
-
-```text
-Text → Model → Prediction
-```
-
-It also evaluates whether a prediction deserves to be trusted.
-
-HealthGuard compares a classical TF-IDF model with a semantic embedding-based model and examines reliability signals including confidence, calibration, predictive uncertainty, out-of-distribution behavior, and disagreement between models.
-
-The central engineering question behind the project is:
-
-> **A model can produce a prediction. How should the system determine whether that prediction is reliable enough to trust?**
-
-HealthGuard is designed as decision support for operational feedback analysis. It does not make autonomous clinical or hospital decisions.
+> **Status: an engineering project, not a medical device.** It has not been clinically validated, has not been assessed against HIPAA, GDPR or
+> any other regulation, and must not be used with real patient data. See [Honest status](#honest-status-and-limitations) and
+> [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md) for the exact open blockers.
 
 ---
 
-# What problem does HealthGuard address?
+## Contents
 
-Patient feedback is usually unstructured.
-
-Examples may contain complaints about:
-
-* Billing
-* Communication
-* Waiting time
-* Appointments
-* Other operational experiences
-
-A simple sentiment label is often insufficient.
-
-An operational workflow may need to know:
-
-* What issue is being reported?
-* Are multiple issues present?
-* How severe is the case?
-* What evidence in the text supports the result?
-* How confident is the model?
-* Does confidence correspond to actual correctness?
-* Is the input different from the data the model was trained on?
-* Do independent modeling approaches agree?
-* Should the prediction be reviewed instead of acted upon automatically?
-
-HealthGuard was built around these questions.
-
-## Demo Visuals 
-
-<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 37 29 AM" src="https://github.com/user-attachments/assets/15e66c33-4b17-486d-b5b1-d8e2d185d383" />
-<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 37 49 AM" src="https://github.com/user-attachments/assets/1f1c0b5c-e603-4710-993f-84ff95513851" />
-<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 37 53 AM" src="https://github.com/user-attachments/assets/69309088-cddc-486e-bdef-6ca6f411d8bc" />
-<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 38 10 AM" src="https://github.com/user-attachments/assets/90d36274-b8c3-431e-bdf3-25965c39fb50" />
-<img width="1470" height="956" alt="Screenshot 2026-09-11 at 10 38 22 AM" src="https://github.com/user-attachments/assets/f98129d8-cbd2-48b3-bedc-61698a39efd1" />
-
-# System Architecture
-
-```mermaid
-flowchart TD
-
-    A[Patient Feedback]
-        --> B[Preprocessing and Data Quality Checks]
-
-    B --> C1[Classical Model]
-    B --> C2[Semantic Model]
-
-    C1 --> D1[TF-IDF Features]
-    D1 --> E1[Logistic Regression]
-
-    C2 --> D2[Semantic Embeddings]
-    D2 --> E2[Logistic Regression]
-
-    E1 --> F[Model Comparison]
-    E2 --> F
-
-    F --> G[Reliability Assessment]
-
-    G --> H1[Confidence]
-    G --> H2[Calibration]
-    G --> H3[Uncertainty]
-    G --> H4[OOD Signals]
-    G --> H5[Model Disagreement]
-
-    H1 --> I[Structured Prediction Context]
-    H2 --> I
-    H3 --> I
-    H4 --> I
-    H5 --> I
-
-    I --> J[Issue Classification]
-    I --> K[Severity Context]
-    I --> L[Evidence Signals]
-
-    J --> M[Reliability-Aware Output]
-    K --> M
-    L --> M
-```
-
-The two model approaches are evaluated independently before their behavior is examined through the reliability layer.
-
-The purpose is not to assume that the more complex model is automatically better.
+1. [Why it exists](#why-it-exists)
+2. [What you can do with it](#what-you-can-do-with-it)
+3. [How it works](#how-it-works)
+4. [Design principles](#design-principles)
+5. [Results at a glance](#results-at-a-glance)
+6. [Technology](#technology)
+7. [Run it](#run-it)
+8. [Repository map](#repository-map)
+9. [Documentation](#documentation)
+10. [Honest status and limitations](#honest-status-and-limitations)
 
 ---
 
-# Core Capabilities
+## Why it exists
 
-## Patient feedback classification
+A person's health history is fragmented across hospitals, labs and pharmacies, mostly as PDFs and photographs. Two failure modes follow:
 
-HealthGuard processes feedback and classifies reported issue categories using trained machine-learning models.
+- **Patients and families cannot answer simple questions** about their own history, and arrive at appointments without the context a doctor needs.
+- **Generic AI assistants answer confidently and unverifiably.** In a medical setting a fluent but wrong answer ("your hemoglobin was 9.0" when the report says 14.2)
+  is worse than no answer.
 
-The original application foundation includes:
+HealthGuard is built around the second problem. The interesting engineering is not the chat box; it is the machinery that decides **when the system is
+allowed to speak**.
 
-* Text preprocessing
-* TF-IDF vectorization
-* Logistic Regression classification
-* Sentiment analysis
-* Issue categorization
-* Priority and severity logic
-* Persisted model artifacts
-* Reusable inference pipelines
+## What you can do with it
 
-The TF-IDF model remains preserved as the classical baseline.
+| Area | What it does |
+|---|---|
+| **Records** | Patient profiles; a dated timeline of consultations, diagnoses, medication changes, investigations, hospitalisations and vaccinations; medications with history; lab results and measurements with trend charts. |
+| **Documents** | Upload PDFs and images. A background worker extracts text (OCR for scans), classifies the document, and extracts structured facts, each carrying its **source page and quoted text** and a provenance label. |
+| **Ask My Records** | Plain-language questions answered from the patient's own evidence, with citations. Unsupported or unsafe answers are replaced by a refusal. |
+| **Doctor-visit preparation** | Generates an evidence-backed handoff summary as an editable draft; finalising it makes it immutable. |
+| **Follow-ups and reminders** | Track actions derived from documents or entered manually; opt-in email reminders with idempotent, retried delivery. |
+| **Sharing** | Grant a family member, caregiver or doctor access limited to specific **scopes**, with expiry and instant revocation; or create a time-limited share link. |
+| **Privacy controls** | Explicit, versioned consent for AI processing; one-click export of everything held about a patient (JSON or ZIP with original files); deletion that removes the file, the extracted text and the derived facts. |
+| **Operations** | A separate admin console with no access to patient data: queue health, AI telemetry (latency, errors, tokens), security events and alerts delivered by webhook or email. |
 
----
+## How it works
 
-## Two modeling approaches
-
-HealthGuard evaluates two representations of the same classification problem.
-
-### Classical baseline
-
-```text
-Feedback Text
-      ↓
-TF-IDF Representation
-      ↓
-Logistic Regression
-      ↓
-Issue Classification
-```
-
-This model provides a lightweight and interpretable baseline.
-
-### Semantic model
-
-```text
-Feedback Text
-      ↓
-Semantic Embedding Representation
-      ↓
-Dense Feature Vector
-      ↓
-Logistic Regression
-      ↓
-Issue Classification
-```
-
-The semantic approach is evaluated separately to determine whether a semantic representation handles language variation differently from sparse TF-IDF features.
-
-The goal is comparison rather than assuming improvement because the architecture is more complex.
-
----
-
-# Evaluation Architecture
-
-HealthGuard separates data used for model fitting from data used for evaluation decisions.
-
-```mermaid
-flowchart TD
-
-    A[Source Dataset]
-        --> B[Data Contract and Quality Checks]
-
-    B --> C[Duplicate Detection]
-    C --> D[Leakage Checks]
-    D --> E[Dataset Separation]
-
-    E --> TRAIN[Training Split]
-    E --> VAL[Validation Split]
-    E --> TEST[Test Split]
-    E --> CHALLENGE[Challenge / OOD Set]
-
-    TRAIN --> M[Model Training]
-
-    VAL --> V[Calibration and Threshold Decisions]
-
-    M --> TEST
-    V --> TEST
-
-    TEST --> P[Final In-Domain Evaluation]
-
-    CHALLENGE --> Q[Robustness Diagnostics]
-
-    P --> R[Evaluation Results]
-    Q --> R
-```
-
-The challenge set remains separate from model fitting and validation decisions.
-
-This allows difficult cases to be evaluated without treating them as ordinary in-distribution benchmark data.
-
----
-
-# Data Quality and Leakage Prevention
-
-A major part of the project involved examining whether the evaluation process itself could produce misleading results.
-
-The evaluation workflow includes:
-
-* Data contracts
-* Train / validation / test separation
-* Duplicate detection
-* Leakage checks
-* Challenge-set isolation
-* Per-class metrics
-* Confusion matrices
-* Accuracy
-* Precision
-* Recall
-* Macro F1
-* Machine-readable evaluation output
-* Dataset and model metadata
-
-During dataset evaluation, the project identified a high duplicate-text rate in the original synthetic dataset.
-
-This matters because a naive random split can place identical or near-identical examples in both training and evaluation data.
-
-That can make benchmark performance appear stronger than the model's ability to generalize.
-
-HealthGuard therefore treats dataset isolation and deduplicated evaluation as part of the ML system rather than only as preprocessing details.
-
----
-
-# Challenge and Robustness Evaluation
-
-HealthGuard includes a separate challenge set for diagnostic evaluation.
-
-The challenge examples cover cases such as:
-
-| Challenge type     | Purpose                                         |
-| ------------------ | ----------------------------------------------- |
-| Paraphrase         | Different wording for the same underlying issue |
-| Ambiguous          | More than one plausible interpretation          |
-| Multi-issue        | Multiple complaints in one feedback item        |
-| Low-information    | Very limited context                            |
-| Unfamiliar wording | Informal or unusual language                    |
-| Out-of-domain      | Feedback unrelated to trained issue categories  |
-| Edge cases         | Difficult classification boundaries             |
-
-These cases are evaluated separately from normal held-out test performance.
-
----
-
-# Reliability-Aware Predictions
-
-A probability returned by `predict_proba()` is not automatically treated as a trustworthy prediction.
-
-HealthGuard evaluates several signals around a prediction.
-
-```mermaid
-flowchart TD
-
-    A[Model Prediction]
-
-    A --> B[Maximum Confidence]
-    A --> C[Prediction Margin]
-    A --> D[Predictive Entropy]
-
-    B --> E[Reliability Analysis]
-    C --> E
-    D --> E
-
-    E --> F[Calibration Behavior]
-    E --> G[OOD Signal]
-    E --> H[Model Agreement]
-
-    F --> I[Reliability Context]
-    G --> I
-    H --> I
-```
-
-The objective is not simply to increase model accuracy.
-
-The reliability layer asks:
-
-> **Should this prediction be trusted under the current conditions?**
-
----
-
-# Confidence Calibration
-
-A model can be highly confident and still be wrong.
-
-HealthGuard evaluates whether predicted confidence corresponds to observed correctness.
-
-The evaluation includes diagnostics such as:
-
-* Brier score
-* Expected Calibration Error
-* Reliability diagnostics
-* Confidence distributions
-* Accuracy by confidence bucket
-
-Conceptually, the system distinguishes:
-
-```text
-High Confidence
-      ↓
-Is the prediction actually more likely to be correct?
-      ↓
-Calibration analysis
-```
-
-This is important because raw probability scores alone do not guarantee reliability.
-
----
-
-# Uncertainty
-
-Each prediction can be represented using information such as:
-
-```json
-{
-  "prediction": "issue_category",
-  "confidence": 0.0,
-  "margin": 0.0,
-  "entropy": 0.0,
-  "uncertainty_level": "..."
-}
-```
-
-The signals capture different aspects of model behavior.
-
-For example, a model may have:
-
-* A low maximum probability
-* A small margin between competing classes
-* High predictive entropy
-
-These signals can indicate that the classification decision is ambiguous.
-
----
-
-# Out-of-Distribution Analysis
-
-HealthGuard includes an explainable experiment for detecting whether feedback differs substantially from the model's training distribution.
-
-A key distinction in the project is:
-
-```text
-Classification Uncertainty
-        ≠
-Out-of-Distribution Detection
-```
-
-A low-confidence prediction is not automatically an out-of-distribution input.
-
-Similarly, an input that differs substantially from the training distribution may require separate handling even if the classifier produces a confident output.
-
-The two signals are evaluated independently.
-
----
-
-# Model Disagreement
-
-HealthGuard compares predictions produced by the classical and semantic models.
-
-```mermaid
-flowchart TD
-
-    A[Feedback]
-
-    A --> B[TF-IDF Model]
-    A --> C[Semantic Model]
-
-    B --> D[Prediction A]
-    C --> E[Prediction B]
-
-    D --> F{Do Models Agree?}
-    E --> F
-
-    F -->|Yes| G[Agreement Signal]
-    F -->|No| H[Disagreement Signal]
-
-    G --> I[Reliability Analysis]
-    H --> I
-```
-
-Model disagreement is not automatically treated as proof that a prediction is wrong.
-
-Instead, the project evaluates whether disagreement is associated with a higher probability of prediction errors.
-
-This turns model disagreement into an observable diagnostic signal rather than an assumption.
-
----
-
-# Key Experimental Findings
-
-HealthGuard intentionally preserves findings that do not support a simple "the newer model is better" narrative.
-
-The evaluation identified several important patterns.
-
-## Strong in-distribution performance does not guarantee robustness
-
-The baseline performed strongly on normal held-out synthetic data.
-
-Performance degraded more substantially on difficult challenge cases.
-
-This demonstrates why a single benchmark accuracy value is not sufficient for evaluating model reliability.
-
----
-
-## The semantic model was not automatically better
-
-The semantic model evaluation showed:
-
-* No clear overall accuracy improvement over the classical baseline
-* Improvement on some unfamiliar wording
-* Weakness on other difficult categories
-* Higher confidence without consistently higher correctness
-
-This produced an important engineering conclusion:
-
-> **A more sophisticated representation is not automatically more reliable.**
-
----
-
-## Different models can fail differently
-
-The uncertainty experiments highlighted trade-offs between model behavior.
-
-A highly conservative operating point can produce:
-
-```text
-Lower automation coverage
-        +
-Higher reliability among trusted predictions
-```
-
-while a more permissive operating point can produce:
-
-```text
-Higher automation coverage
-        +
-Greater risk on difficult cases
-```
-
-This is why HealthGuard evaluates reliability separately from raw classification accuracy.
-
----
-
-# Application Architecture
-
-HealthGuard also includes an application layer around the ML pipeline.
+### System overview
 
 ```mermaid
 flowchart LR
-
-    U[User]
-
-    subgraph Frontend
-        FE[HealthGuard Web Interface]
+    subgraph Clients
+        B["Browser<br/>(static HTML + JS)"]
     end
 
-    subgraph Backend["FastAPI Backend"]
-        AUTH[Authentication]
-        API[Protected API Routes]
-        ANALYSIS[Feedback Analysis]
-        UPLOAD[File Upload]
-        METRICS[Metrics]
+    subgraph App["HealthGuard application"]
+        API["FastAPI service<br/>auth, RBAC, REST API"]
+        W["Worker process(es)<br/>document jobs, reminders,<br/>alert cycle"]
     end
 
-    subgraph ML["ML and Evaluation"]
-        BASE[TF-IDF Baseline]
-        SEM[Semantic Model]
-        REL[Reliability Evaluation]
+    subgraph State["Stateful services"]
+        PG[("PostgreSQL<br/>records, jobs, audit")]
+        RD[("Redis<br/>job queue,<br/>rate limits")]
+        S3[("Private object storage<br/>S3 compatible")]
     end
 
-    U --> FE
-    FE --> API
+    subgraph External["External services"]
+        LLM["AI provider<br/>OpenAI-compatible"]
+        SMTP["SMTP<br/>verification, reminders, alerts"]
+        HOOK["Alert webhook"]
+    end
 
-    API --> AUTH
-    API --> ANALYSIS
-    API --> UPLOAD
-    API --> METRICS
-
-    ANALYSIS --> BASE
-    ANALYSIS --> SEM
-
-    BASE --> REL
-    SEM --> REL
+    B -->|"HTTPS, cookie session + CSRF"| API
+    API --> PG
+    API --> RD
+    API --> S3
+    API -->|"Ask, handoff<br/>(owner consent required)"| LLM
+    RD -->|"job ids"| W
+    W --> PG
+    W --> S3
+    W -->|"fact extraction<br/>(owner consent required)"| LLM
+    W --> SMTP
+    W --> HOOK
 ```
 
-The application foundation includes:
-
-* FastAPI backend
-* JWT authentication
-* Password hashing
-* User registration and login
-* Protected routes
-* Feedback analysis APIs
-* File upload support
-* Metrics endpoints
-* Workspace functionality
-
----
-
-# Application Flow
+### From document to answer
 
 ```mermaid
-sequenceDiagram
+flowchart TD
+    U["Upload document"] --> ST["Store privately<br/>patient-scoped key"]
+    ST --> Q["Queue job"]
+    Q --> X["Extract text per page<br/>PDF text or OCR"]
+    X --> C{"Owner consented to<br/>AI processing?"}
+    C -- no --> F["Fail without retry<br/>re-queued when consent is granted"]
+    C -- yes --> L["AI extracts candidate facts"]
+    L --> V{"Value supported by the<br/>quoted source text?"}
+    V -- no --> D["Drop fact and count it"]
+    V -- yes --> P["Persist fact with page,<br/>quote and provenance"]
 
-    participant U as User
-    participant FE as Frontend
-    participant API as FastAPI
-    participant AUTH as Authentication
-    participant ML as ML Pipeline
-    participant REL as Reliability Layer
-
-    U->>FE: Register or log in
-    FE->>API: Authentication request
-    API->>AUTH: Verify credentials
-    AUTH-->>API: Access token
-    API-->>FE: Authenticated session
-
-    U->>FE: Submit feedback
-    FE->>API: Protected analysis request
-
-    API->>ML: Run prediction
-    ML-->>API: Model outputs
-
-    API->>REL: Evaluate reliability signals
-    REL-->>API: Reliability context
-
-    API-->>FE: Structured result
-    FE-->>U: Analysis output
+    P --> K["Patient record"]
+    K --> A["Question arrives"]
+    A --> S1{"Safe to answer?<br/>not a diagnosis, dose<br/>or treatment request"}
+    S1 -- no --> R1["Refuse"]
+    S1 -- yes --> RT["Retrieve evidence<br/>for this patient only"]
+    RT --> E{"Any evidence?"}
+    E -- no --> R2["Say the record does<br/>not contain it"]
+    E -- yes --> G["AI drafts answer<br/>with citations"]
+    G --> VA{"Every claim supported by<br/>its cited evidence?"}
+    VA -- no --> R2
+    VA -- yes --> OUT["Answer with citations"]
 ```
 
----
+The second half of that diagram is the heart of the project: **the model never has the last word.** Its draft is checked claim by claim by deterministic
+code (numbers, dates, units, negation, who the statement is about, whether a medicine is current or stopped) before anything reaches the user.
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) explains each stage.
 
-# Technology Stack
+## Design principles
 
-| Layer             | Technology          | Usage                             |
-| ----------------- | ------------------- | --------------------------------- |
-| Backend           | Python + FastAPI    | Application API                   |
-| Server            | Uvicorn             | ASGI server                       |
-| Classical ML      | scikit-learn        | Model training and inference      |
-| Text Features     | TF-IDF              | Sparse text representation        |
-| Semantic Features | spaCy embeddings    | Dense semantic representation     |
-| Classifier        | Logistic Regression | Issue classification              |
-| NLP               | spaCy + NLTK        | Text processing                   |
-| Authentication    | JWT                 | Protected application access      |
-| Password Security | PBKDF2              | Password hashing                  |
-| Data Processing   | Pandas + NumPy      | Dataset processing and evaluation |
-| Model Persistence | Joblib              | Saved model artifacts             |
+1. **Fail closed.** If validation cannot confirm an answer, the user sees a refusal, never a best guess. Rate limiting, consent and storage failures behave the same way in production.
+2. **Evidence or silence.** Every extracted fact keeps its page, quote and provenance. A fact whose value its own quote does not support is dropped.
+3. **Document content is data, never instructions.** Sentences inside an uploaded document that read like commands to an AI cannot support a claim.
+4. **Isolation is structural.** Retrieval is scoped to one patient by construction, and deleted documents are excluded at every read path (and their derived content is purged).
+5. **Measure before claiming.** Release gates were fixed *before* the first measurement, and the baseline that failed them is kept in the repository.
+6. **State what is not verified.** The audit report lists unexecuted checks as plainly as passing ones.
 
----
+## Results at a glance
 
-# Project Structure
+Full methodology, datasets and caveats are in [`docs/EVALUATION.md`](docs/EVALUATION.md). These figures measure HealthGuard's *own checking layers* on small,
+hand-written synthetic cases. They are **not** model accuracy and **not** clinical accuracy.
 
-```text
-HealthGuard/
-│
-├── backend/
-│   ├── api/
-│   ├── auth.py
-│   └── main.py
-│
-├── frontend/
-│
-├── data/
-│   ├── splits/
-│   │   ├── train.csv
-│   │   ├── val.csv
-│   │   └── test.csv
-│   │
-│   └── challenge_set.csv
-│
-├── evaluation/
-│   ├── evaluate.py
-│   ├── benchmark_model.py
-│   ├── semantic_model.py
-│   ├── embeddings.py
-│   └── ...
-│
-├── models/
-│   ├── issue_classifier/
-│   ├── benchmark_issue_classifier/
-│   ├── semantic_issue_classifier/
-│   └── uncertainty/
-│
-├── modules/
-│   ├── ml_issue_classifier.py
-│   └── ...
-│
-├── training/
-│
-├── tests/
-│
-├── requirements.txt
-│
-└── README.md
-```
+| Release gate | Before fixes | After fixes | Bar |
+|---|---:|---:|---:|
+| Unsupported claims rejected | 60% | **100%** | ≥ 95% |
+| Dangerous contradictions accepted (negation, unit, subject, ...) | 9 | **0** | 0 |
+| Valid claims wrongly rejected | 33% | **0%** | ≤ 10% |
+| Diagnosis / dose requests refused | 77% | **100%** | ≥ 98% |
+| Plain record look-ups wrongly refused | 18% | **0%** | ≤ 10% |
+| Invented extracted facts rejected | 17% | **100%** | ≥ 95% |
+| Cross-patient and deleted-document leakage | 0 | **0** | 0 |
 
----
+Before the fixes **10 of 17 gates failed**; all 18 now pass, and the run is deterministic. On a separate held-out set (first and only clean run) the
+safety classifier's refusal recall was **67%**, a genuine weakness that the report documents rather than hides.
 
-# Running Locally
+The test suite stood at **616 passing tests (611 non-browser including real PostgreSQL, 5 real-browser), 0 skipped** at audit time. The deployment-hardening changes in this build added tests of their own (`tests/test_deployment_readiness.py`, `tests/p0/test_email_provider_consistency.py`, and an updated release test); those 60 tests (this file plus the updated release test) were re-run for this documentation pass and pass, but the full suite was not re-run, so the 616 figure is the audit-time number.
 
-## 1. Clone the repository
+## Technology
+
+| Layer | Choice |
+|---|---|
+| API | Python, FastAPI, Pydantic, SQLAlchemy 2, Alembic |
+| Data | PostgreSQL (SQLite for tests), Redis, S3-compatible object storage |
+| Background work | A dedicated worker with leases, retries with backoff, stale-job recovery and quarantine |
+| AI | Any OpenAI-compatible chat endpoint behind a strict schema; deterministic validators around it |
+| Frontend | Static HTML, CSS and vanilla JavaScript (no build step) |
+| Quality | pytest, Playwright with real Chromium, axe-core accessibility scan, a purpose-built AI evaluation suite |
+| Delivery | One non-root Docker image (bundles Tesseract) used by both Render services; docker-compose stack (PostgreSQL, Redis, MinIO, Mailpit dev mailbox); fail-fast production config checks; GitHub Actions workflow |
+
+The repository also contains the earlier **patient-feedback analytics** app (Streamlit plus classical ML); it is documented in the phase reports listed below.
+
+## Run it
+
+Local development (SQLite, local file storage, no external services):
 
 ```bash
-git clone <repository-url>
-cd HealthGuard
+cp .env.example .env                       # set HEALTHGUARD_JWT_SECRET to a long random value
+pip install -r requirements.txt -r requirements-dev.txt
+alembic upgrade head
+uvicorn backend.main:app --reload          # http://127.0.0.1:8000/login
+python -m jobs.worker                      # in a second terminal: processes uploaded documents
 ```
 
-## 2. Create a virtual environment
-
-### macOS / Linux
+Production-like stack (PostgreSQL, Redis, MinIO, API and worker):
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+docker compose up --build
 ```
 
-### Windows
+Tests and evaluation:
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
+python -m pytest -rs                                  # a skipped test counts as a failure
+python -m evaluation.healthguard.runner               # AI release gates; exit code 1 if any gate fails
+HEALTHGUARD_CHROMIUM_PATH=/path/to/chromium python -m pytest tests/p0/test_browser_privacy_a11y.py
+python scripts/make_release.py                        # clean, deterministic release package
 ```
 
----
+### Deploying
 
-## 3. Install dependencies
+The production path is two Docker services on Render (`healthguard-api`, `healthguard-worker`) built from the same image, plus managed PostgreSQL, Redis and an S3-compatible bucket that you provision yourself. Both services refuse to start on a bad configuration instead of failing later in front of a user.
 
-```bash
-pip install -r requirements.txt
+```mermaid
+flowchart LR
+    G["git push"] --> BLD["Render builds ./Dockerfile<br/>(includes Tesseract)"]
+    BLD --> MIG["API pre-deploy:<br/>scripts/migrate.sh<br/>alembic upgrade head"]
+    MIG --> API["API starts:<br/>config checks, schema check,<br/>uvicorn"]
+    MIG --> WRK["Worker starts:<br/>config checks, schema check,<br/>Tesseract check, worker loop"]
+    API --> H1["GET /api/health, /api/ready"]
+    WRK --> H2["GET /health"]
 ```
 
----
+Step by step, with the full variable matrix and the smoke-test checklist, in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
-## 4. Install NLP resources
+AI features stay disabled until `HEALTHGUARD_LLM_API_KEY` (and the related `HEALTHGUARD_LLM_*` settings in `.env.example`) are configured. Once a key is
+set, each record owner must grant AI consent in **Settings, Privacy and data** before any text is sent to the provider. Use synthetic documents only.
 
-```bash
-python -c "
-import nltk
-nltk.download('punkt')
-nltk.download('punkt_tab')
-nltk.download('stopwords')
-nltk.download('wordnet')
-"
+## Repository map
+
+```
+backend/      FastAPI app, auth, security middleware, request-size limiter
+api/          Route modules: patient records, privacy and export, admin, reminders, schemas
+domain/       Business logic: retrieval, grounding validation, AI safety, consent, export,
+              retention, alert delivery, rate limiting, observability, clinical term lexicon
+ai/           Provider adapters (strict schema, telemetry) for answers and document analysis
+jobs/         Queue, worker loop, leases and recovery, worker health
+db/           SQLAlchemy models and session handling;  alembic/ holds migrations (head 0018)
+storage/      Local and S3 object storage with patient-scoped keys
+frontend/     Static pages and scripts;  frontend/css design tokens
+evaluation/   healthguard/ (AI release-gate suite, datasets, reports); earlier ML evaluation code
+tests/        Unit, integration, real-PostgreSQL, real-browser and accessibility tests
+utils/        production_config.py: startup checks shared by the API and the worker
+deploy/       Production runbook;  scripts/ start, worker, migrate, schema-check, admin and release scripts
+docs/         Architecture, sprint history, evaluation, release audit
 ```
 
----
-
-## 5. Configure the JWT secret
-
-### macOS / Linux
-
-```bash
-export HEALTHGUARD_JWT_SECRET="your-long-random-secret"
-```
-
-### Windows PowerShell
-
-```powershell
-$env:HEALTHGUARD_JWT_SECRET="your-long-random-secret"
-```
-
----
-
-## 6. Run the application
-
-```bash
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
-```
-
-Open:
-
-```text
-http://127.0.0.1:8000
-```
-
----
-
-# Running Tests
-
-Run the complete test suite:
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-The test suite covers areas including:
-
-* Dataset isolation
-* Leakage prevention
-* Evaluation structure
-* Benchmark isolation
-* Semantic model training isolation
-* Calibration workflow
-* Threshold selection
-* OOD detection
-* Model disagreement
-* Frozen artifact integrity
-* Structured evaluation output
-
----
-
-# Reproducibility
-
-HealthGuard treats datasets and trained model artifacts as controlled evaluation assets.
-
-The project tracks information such as:
-
-* Dataset versions
-* Random seeds
-* Model identifiers
-* Feature configuration
-* Evaluation timestamps
-* Artifact hashes
-* Frozen model integrity
-
-Frozen artifacts are separated from test-generated outputs to reduce the risk of evaluation models being silently overwritten during testing.
-
----
-
-# Reliability and Safety Principles
-
-## Synthetic performance is not presented as clinical performance
-
-The evaluation data is synthetic.
-
-High benchmark performance on this dataset is not presented as evidence that the system is ready for real-world hospital deployment.
-
----
-
-## Predictions are not treated as root-cause conclusions
-
-HealthGuard distinguishes between:
-
-```text
-Observed Feedback Evidence
-        ≠
-Confirmed Operational Root Cause
-```
-
-The system can identify patterns in feedback without claiming that it has independently established the underlying operational cause.
-
----
-
-## Low-reliability cases should remain reviewable
-
-The purpose of uncertainty and disagreement analysis is not to eliminate human review.
-
-A reliability signal can indicate that a case deserves additional attention rather than automated action.
-
----
-
-## The application is decision support
-
-HealthGuard is designed to assist operational review.
-
-It is not intended to make autonomous clinical, financial, or hospital-management decisions.
-
----
-
-# Engineering Decisions
-
-## The baseline is preserved instead of replaced
-
-The TF-IDF model remains part of the evaluation system after introducing semantic embeddings.
-
-This makes it possible to compare approaches directly rather than replacing the original model and losing the reference point.
-
----
-
-## Validation and challenge data have different purposes
-
-Validation data is used for decisions such as:
-
-* Calibration
-* Threshold selection
-* Operating-point selection
-
-The held-out test set is used for final in-distribution evaluation.
-
-The challenge set is used for diagnostic robustness analysis.
-
-```text
-Training
-   ↓
-Model Fitting
-
-Validation
-   ↓
-Calibration and Threshold Decisions
-
-Test
-   ↓
-Final In-Distribution Evaluation
-
-Challenge / OOD
-   ↓
-Robustness Diagnostics
-```
-
-These roles are intentionally separated.
-
----
-
-## Reliability is treated as a measurable system property
-
-The project does not assume that confidence is reliability.
-
-Instead, it examines multiple signals:
-
-```text
-Prediction
-    +
-Confidence
-    +
-Calibration
-    +
-Uncertainty
-    +
-OOD Signal
-    +
-Model Agreement
-    ↓
-Reliability Assessment
-```
-
----
-
-# Current Scope
-
-The ML evaluation and reliability research foundation is implemented.
-
-The current repository includes the application foundation and the evaluation components described above.
-
-The remaining product-oriented work focuses on integrating the reliability findings more deeply into the user-facing decision layer.
-
-Areas for continued development include:
-
-* Reliability-aware case views
-* Evidence-backed issue summaries
-* User-facing explanations of reliability signals
-* High-priority issue identification
-* Emerging issue trends
-* Reliability-aware operational metrics
-* Action-oriented recommendations with explicit evidence boundaries
-
-These are presented as future integration work rather than completed functionality.
-
----
-
-# Project Context
-
-HealthGuard brings together several engineering areas that are often treated separately:
-
-* NLP preprocessing
-* Text classification
-* Classical machine learning
-* Semantic representations
-* Dataset quality checks
-* Leakage prevention
-* Model benchmarking
-* Calibration
-* Predictive uncertainty
-* Out-of-distribution analysis
-* Model disagreement
-* Authentication
-* API development
-* Application integration
-* Reproducible evaluation
-
-The project is built around a broader question than classification accuracy.
-
-> **Can the system identify not only what it predicts, but also when the conditions around that prediction suggest caution?**
-
----
-
-]
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Components, data model, request and document flows, the grounding pipeline, security, failure behaviour and design decisions |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | How the system runs on Render and in Docker Compose: topology, boot sequence, the startup checks and what each one catches, configuration matrix, smoke tests, known gaps in the blueprint |
+| [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Running it: health and metrics endpoints, what the worker loops do, reminder and alert delivery state machines, admin access, incident decision tree, backup and recovery |
+| [`docs/API.md`](docs/API.md) | Every registered route, grouped by area, with who may call it; authentication and CSRF flow |
+| [`docs/EVALUATION.md`](docs/EVALUATION.md) | The AI evaluation suite, release gates, before and after results, held-out generalisation and limits |
+| [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md) | The authoritative readiness verdict, defects found and fixed, and the exact open blockers |
+| [`docs/SPRINTS.md`](docs/SPRINTS.md) | How the system was built, sprint by sprint, with what each stage delivered and what it found |
+| [`deploy/PRODUCTION.md`](deploy/PRODUCTION.md) | The terse production checklist that `docs/DEPLOYMENT.md` expands on |
+| [`docs/archive/README_sprint1_api_reference.md`](docs/archive/README_sprint1_api_reference.md) | The original Sprint 1 README (superseded; `docs/API.md` is the current route reference) |
+| `PHASE1_ML_UPGRADE.md` ... `PHASE3C_*.md` | The earlier patient-feedback ML work (classifier, semantic model, calibration, out-of-distribution handling) |
+
+## Honest status and limitations
+
+**Not launch-ready.** The blockers, with evidence, are in [`docs/RELEASE_AUDIT.md`](docs/RELEASE_AUDIT.md). In short:
+
+- The pinned dependencies carry **199 known vulnerabilities**; a clean upgrade set exists but was not adopted because it failed an existing test.
+- The Python 3.11 / Docker build, real S3, a real AI provider, load and capacity, and backup/restore were **never verified** in the environment this was built in.
+- AI accuracy on real documents has **not been measured**. Every evaluation case is synthetic and written by the validators' author, so results probably flatter the system.
+- The input safety classifier is pattern-based and one layer of several; its held-out recall was 67% on first contact.
+- Accessibility: serious axe-core violations are fixed, moderate ones remain, and no screen-reader testing was done.
+
+This software gives no medical advice and must not be used to make clinical decisions.

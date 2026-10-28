@@ -1,0 +1,25 @@
+{
+  "dataset": "RETRIEVAL_EVALUATION_DATASET",
+  "dataset_size": 17,
+  "deterministic": {
+    "k": 3,
+    "cases": 17,
+    "recall_at_k": 0.8824,
+    "precision_at_k": 0.8235,
+    "evidence_hit_rate": 0.8235
+  },
+  "semantic": {
+    "k": 3,
+    "cases": 17,
+    "recall_at_k": 0.9412,
+    "precision_at_k": 0.4118,
+    "evidence_hit_rate": 0.9412
+  },
+  "hybrid": {
+    "k": 3,
+    "cases": 17,
+    "recall_at_k": 0.8824,
+    "precision_at_k": 0.8235,
+    "evidence_hit_rate": 0.8235
+  }
+}

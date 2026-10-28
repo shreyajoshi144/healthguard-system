@@ -1,0 +1,681 @@
+{
+  "phase": "3A-correction",
+  "report_type": "benchmark_baseline_evaluation",
+  "reproducibility": {
+    "model_identifier": "benchmark_tfidf_logistic_regression_issue_classifier_v1",
+    "evaluation_timestamp_utc": "2026-09-04T06:06:49.778638+00:00",
+    "random_seed": 42,
+    "python_version": "3.12.3",
+    "scikit_learn_version": "1.8.0",
+    "train_dataset_version": "sample-v1.0",
+    "val_dataset_version": "sample-v1.0",
+    "test_dataset_version": "sample-v1.0",
+    "challenge_dataset_version": "challenge-v1.0",
+    "feature_configuration": {
+      "vectorizer": "TfidfVectorizer",
+      "vectorizer_params": {
+        "ngram_range": [
+          1,
+          2
+        ],
+        "min_df": 2,
+        "max_df": 0.9,
+        "sublinear_tf": true
+      },
+      "classifier": "LogisticRegression",
+      "classifier_params": {
+        "max_iter": 1000,
+        "class_weight": "balanced",
+        "random_state": 42
+      }
+    },
+    "artifact_paths": {
+      "vectorizer": "/home/claude/healthguard/models/benchmark_issue_classifier/tfidf_vectorizer.joblib",
+      "model": "/home/claude/healthguard/models/benchmark_issue_classifier/logreg_issue_classifier.joblib"
+    },
+    "artifact_sha256": {
+      "vectorizer": "6196a1eac5ac0340270f3719f934df1643782126ed34ec01621259377c392a6c",
+      "model": "600f09f35c91f18b7b94c983a0c6985b0399c2f7bb5d24a1f6b948a834a81cf8"
+    },
+    "production_artifact_paths_for_comparison": {
+      "vectorizer": "/home/claude/healthguard/models/issue_classifier/tfidf_vectorizer.joblib",
+      "model": "/home/claude/healthguard/models/issue_classifier/logreg_issue_classifier.joblib"
+    },
+    "trained_only_on": "data/splits/train.csv",
+    "split_sizes": {
+      "train": 247,
+      "validation": 53,
+      "test": 53,
+      "challenge": 36
+    },
+    "split_manifest_reference": {
+      "path": "/home/claude/healthguard/data/splits/split_manifest.json",
+      "built_at": "2026-08-30T21:18:12.063065+00:00"
+    }
+  },
+  "results": {
+    "validation": {
+      "n_examples": 53,
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "confusion_matrix": [
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          5,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          10,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          7,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          7
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "Appointment",
+        "Billing",
+        "Cleanliness",
+        "Communication",
+        "Facilities",
+        "General Positive",
+        "Staff Behavior",
+        "Treatment Quality",
+        "Wait Time"
+      ],
+      "per_class_report": {
+        "Appointment": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 6.0
+        },
+        "Billing": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 4.0
+        },
+        "Cleanliness": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 5.0
+        },
+        "Communication": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 4.0
+        },
+        "Facilities": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 5.0
+        },
+        "General Positive": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 10.0
+        },
+        "Staff Behavior": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "Treatment Quality": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 5.0
+        },
+        "Wait Time": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 53.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 53.0
+        }
+      }
+    },
+    "test": {
+      "n_examples": 53,
+      "accuracy": 1.0,
+      "macro_precision": 1.0,
+      "macro_recall": 1.0,
+      "macro_f1": 1.0,
+      "confusion_matrix": [
+        [
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          9,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          7,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          7
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "Appointment",
+        "Billing",
+        "Cleanliness",
+        "Communication",
+        "Facilities",
+        "General Positive",
+        "Staff Behavior",
+        "Treatment Quality",
+        "Wait Time"
+      ],
+      "per_class_report": {
+        "Appointment": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 6.0
+        },
+        "Billing": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 4.0
+        },
+        "Cleanliness": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 5.0
+        },
+        "Communication": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 4.0
+        },
+        "Facilities": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 6.0
+        },
+        "General Positive": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 9.0
+        },
+        "Staff Behavior": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "Treatment Quality": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 5.0
+        },
+        "Wait Time": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 7.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 53.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 53.0
+        }
+      }
+    },
+    "challenge": {
+      "n_examples": 36,
+      "accuracy": 0.2778,
+      "macro_precision": 0.1903,
+      "macro_recall": 0.3701,
+      "macro_f1": 0.2343,
+      "confusion_matrix": [
+        [
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ],
+        [
+          2,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          4
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          1,
+          0,
+          4
+        ]
+      ],
+      "confusion_matrix_labels": [
+        "Appointment",
+        "Billing",
+        "Cleanliness",
+        "Communication",
+        "Facilities",
+        "General Positive",
+        "Other",
+        "Staff Behavior",
+        "Treatment Quality",
+        "Uncategorized",
+        "Wait Time"
+      ],
+      "per_class_report": {
+        "Appointment": {
+          "precision": 0.25,
+          "recall": 0.5,
+          "f1-score": 0.3333333333333333,
+          "support": 2.0
+        },
+        "Billing": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 4.0
+        },
+        "Cleanliness": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1-score": 0.5,
+          "support": 2.0
+        },
+        "Communication": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 1.0
+        },
+        "Facilities": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "General Positive": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1-score": 0.5,
+          "support": 2.0
+        },
+        "Other": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 7.0
+        },
+        "Staff Behavior": {
+          "precision": 0.2857142857142857,
+          "recall": 1.0,
+          "f1-score": 0.4444444444444444,
+          "support": 2.0
+        },
+        "Treatment Quality": {
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1-score": 0.4,
+          "support": 1.0
+        },
+        "Uncategorized": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 8.0
+        },
+        "Wait Time": {
+          "precision": 0.3076923076923077,
+          "recall": 0.5714285714285714,
+          "f1-score": 0.4,
+          "support": 7.0
+        },
+        "accuracy": 0.2777777777777778,
+        "macro avg": {
+          "precision": 0.19030969030969028,
+          "recall": 0.3701298701298701,
+          "f1-score": 0.23434343434343433,
+          "support": 36.0
+        },
+        "weighted avg": {
+          "precision": 0.1520909645909646,
+          "recall": 0.2777777777777778,
+          "f1-score": 0.18765432098765433,
+          "support": 36.0
+        }
+      }
+    }
+  },
+  "notes": "This is a SEPARATE benchmark artifact trained only on data/splits/train.csv, distinct from the production model under models/issue_classifier/. Its purpose is to provide provably-unseen val/test/challenge evaluation numbers; it is not used anywhere in app.py, backend/, or the live categorize_issues() pipeline. Same synthetic-data caveats apply as documented in PHASE1_ML_UPGRADE.md and PHASE3A_EVALUATION.md \u2014 high validation/test scores reflect the training dataset's constructed vocabulary separation, not real-world accuracy; the challenge-set numbers are the more meaningful generalization signal."
+}

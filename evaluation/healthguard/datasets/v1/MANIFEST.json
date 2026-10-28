@@ -1,0 +1,28 @@
+{
+ "counts": {
+  "citations": 9,
+  "contradictions": 8,
+  "extraction": 20,
+  "grounding": 60,
+  "holdout_grounding": 36,
+  "holdout_safety": 24,
+  "injection": 10,
+  "retrieval": 24,
+  "safety": 44,
+  "unsafe_outputs": 12
+ },
+ "dataset_version": "v1",
+ "files": {
+  "citations.jsonl": "9652e147563cbfe56330a2e682fcd7cd656576e84044fc100e6470cd71c4f496",
+  "contradictions.jsonl": "1c9cf18cf64c6fa221924d9cbab808b0bb673f9905e6549132ad2ea51920626a",
+  "extraction.jsonl": "55ce7557211fe88d3d1c7dad428a0180e083363a18e8486e0e0ac0f4abf29ed1",
+  "grounding.jsonl": "f09538f3105b11748cb7513230a01000bfa99220aa2a002579ef4d44822730b8",
+  "holdout_grounding.jsonl": "ab11c220b67584467382f61e9792624ef6fe90785b7c36473cfa6c52b2e282ed",
+  "holdout_safety.jsonl": "913ee80928b06ad9b34c0777b4b9f129b773b21e3e3c9df315b8eb08d2170f42",
+  "injection.jsonl": "213595cb7e5a4943865fea6545dd1a45e0f2be13e0b53b8e1d48e184e4b6edd1",
+  "retrieval.jsonl": "b2577f81ceaf594190d47149c5903942d36ced47001838d35aa3de3a667aebcc",
+  "retrieval_fixture.json": "5bdaf83554ecd4655dcd9c8d10c91d45d587bed2967c7aaafdcfa91e43f1b11d",
+  "safety.jsonl": "d516cc72e535c4f007c2edc2a3b38df8ac49ce39e304cb031753c385dafaaa21",
+  "unsafe_outputs.jsonl": "f28f9a0a2d1444784f65539138f6eab7ceda8108b838be2d454da29565c46078"
+ }
+}

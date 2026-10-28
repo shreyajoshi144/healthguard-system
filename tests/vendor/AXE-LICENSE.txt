@@ -1,0 +1,2 @@
+axe-core 4.10.2 (c) Deque Systems, Inc. Licensed under the Mozilla Public License 2.0 (https://www.mozilla.org/MPL/2.0/).
+Vendored unmodified as tests/vendor/axe.min.js for automated accessibility checks; source: https://github.com/dequelabs/axe-core

@@ -1,0 +1,186 @@
+{
+ "patients": {
+  "P1": {
+   "docs": {
+    "d_gone": "DELETED",
+    "d_lab": "COMPLETED",
+    "d_rx": "COMPLETED"
+   },
+   "events": [
+    [
+     "ev_mri",
+     "CONSULTATION",
+     "Knee MRI performed",
+     "2023-11-20"
+    ],
+    [
+     "ev_cardio",
+     "CONSULTATION",
+     "Cardiology consultation",
+     "2024-05-10"
+    ]
+   ],
+   "facts": [
+    [
+     "hb_2024",
+     "d_lab",
+     "LAB_RESULT",
+     "Hemoglobin 14.2 g/dL",
+     "Hemoglobin 14.2 g/dL on 2024-03-01",
+     "2024-03-01"
+    ],
+    [
+     "hba1c_2024",
+     "d_lab",
+     "LAB_RESULT",
+     "HbA1c 6.8 %",
+     "HbA1c 6.8 % on 2024-03-01",
+     "2024-03-01"
+    ],
+    [
+     "hba1c_2023",
+     "d_lab",
+     "LAB_RESULT",
+     "HbA1c 7.4 %",
+     "HbA1c 7.4 % on 2023-03-01",
+     "2023-03-01"
+    ],
+    [
+     "chol",
+     "d_lab",
+     "LAB_RESULT",
+     "Total cholesterol 6.2 mmol/L",
+     "Total cholesterol 6.2 mmol/L",
+     "2024-03-01"
+    ],
+    [
+     "creat",
+     "d_lab",
+     "LAB_RESULT",
+     "Creatinine 1.1 mg/dL",
+     "Creatinine 1.1 mg/dL",
+     "2024-03-01"
+    ],
+    [
+     "vitd",
+     "d_lab",
+     "LAB_RESULT",
+     "Vitamin D 12 ng/mL (low)",
+     "Vitamin D 12 ng/mL (low)",
+     "2024-03-01"
+    ],
+    [
+     "dx_t2dm",
+     "d_rx",
+     "DIAGNOSIS",
+     "Diagnosis: Type 2 diabetes mellitus",
+     "Diagnosis: Type 2 diabetes mellitus",
+     null
+    ],
+    [
+     "dx_htn",
+     "d_rx",
+     "DIAGNOSIS",
+     "Diagnosis: Hypertension",
+     "Diagnosis: Hypertension, diagnosed 2019",
+     null
+    ],
+    [
+     "allergy_pen",
+     "d_rx",
+     "ALLERGY",
+     "Allergy: penicillin",
+     "Allergy: penicillin (rash)",
+     null
+    ],
+    [
+     "rx_metformin",
+     "d_rx",
+     "MEDICATION_PRESCRIPTION",
+     "Metformin 500 mg twice daily",
+     "Metformin 500 mg twice daily",
+     null
+    ],
+    [
+     "rx_lisinopril",
+     "d_rx",
+     "MEDICATION_PRESCRIPTION",
+     "Lisinopril 10 mg once daily",
+     "Lisinopril 10 mg once daily",
+     null
+    ],
+    [
+     "gone_asthma",
+     "d_gone",
+     "DIAGNOSIS",
+     "Diagnosis: asthma",
+     "Diagnosis: asthma with wheeze",
+     null
+    ]
+   ],
+   "meds": [
+    [
+     "med_metformin",
+     "Metformin",
+     "500 mg",
+     "twice daily"
+    ],
+    [
+     "med_lisinopril",
+     "Lisinopril",
+     "10 mg",
+     "once daily"
+    ]
+   ]
+  },
+  "P2": {
+   "docs": {
+    "d2": "COMPLETED"
+   },
+   "events": [],
+   "facts": [
+    [
+     "p2_epilepsy",
+     "d2",
+     "DIAGNOSIS",
+     "Diagnosis: Epilepsy",
+     "Diagnosis: Epilepsy with seizures",
+     null
+    ],
+    [
+     "p2_carba",
+     "d2",
+     "MEDICATION_PRESCRIPTION",
+     "Carbamazepine 200 mg twice daily",
+     "Carbamazepine 200 mg twice daily",
+     null
+    ],
+    [
+     "p2_hiv",
+     "d2",
+     "LAB_RESULT",
+     "HIV test negative",
+     "HIV test negative",
+     "2024-01-10"
+    ],
+    [
+     "p2_hb",
+     "d2",
+     "LAB_RESULT",
+     "Hemoglobin 9.1 g/dL",
+     "Hemoglobin 9.1 g/dL",
+     "2024-02-02"
+    ],
+    [
+     "p2_diab",
+     "d2",
+     "DIAGNOSIS",
+     "Diagnosis: Type 2 diabetes mellitus",
+     "Diagnosis: Type 2 diabetes mellitus",
+     null
+    ]
+   ],
+   "meds": []
+  }
+ }
+}

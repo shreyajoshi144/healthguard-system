@@ -1,0 +1,52 @@
+# NOTE: this workflow has NOT been executed on GitHub Actions. Its commands were run locally one by one (see docs/RELEASE_AUDIT.md);
+# the Docker build/run job and the GitHub-hosted service containers are unverified.
+name: ci
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy: {matrix: {python: ["3.11", "3.12"]}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "${{ matrix.python }}", cache: pip}
+      - run: pip install -r requirements.txt -r requirements-dev.txt aiosmtpd 'moto[server]' && python -m playwright install --with-deps chromium && sudo apt-get install -y redis-server tesseract-ocr
+      - name: Full suite (a skipped test is a failure)
+        run: |
+          python -m pytest -rs -p no:cacheprovider | tee pytest.log
+          ! grep -E "[0-9]+ skipped" pytest.log
+      - name: AI evaluation release gates
+        run: python -m evaluation.healthguard.runner --out evaluation-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: "evaluation-${{ matrix.python }}", path: evaluation-report.json}
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "20"}
+      - run: for f in frontend/js/*.js; do node --check "$f"; done
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pip-audit bandit && pip-audit -r requirements.txt && bandit -q -r api backend domain jobs ai db utils storage -ll
+  migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres: {image: "postgres:16", env: {POSTGRES_PASSWORD: pw}, ports: ["5432:5432"], options: "--health-cmd pg_isready --health-interval 5s --health-retries 10"}
+    env: {DATABASE_URL: "postgresql+psycopg://postgres:pw@localhost:5432/postgres", HEALTHGUARD_JWT_SECRET: "ci-secret-ci-secret-ci-secret-ci-secret"}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install -r requirements.txt && alembic upgrade head && alembic check && alembic downgrade base && alembic upgrade head
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python scripts/make_release.py . release.zip
+      - run: docker build -t healthguard:ci .

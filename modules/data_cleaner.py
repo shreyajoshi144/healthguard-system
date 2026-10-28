@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 from utils.logger import get_logger
+from utils.streamlit_compat import in_streamlit_context
 
 logger = get_logger(__name__)
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -48,6 +49,7 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
             df[col] = df[col].clip(1, 5)
 
     removed = initial_rows - len(df)
-    st.info(f"🧹 Cleaning: removed {removed} duplicates, {initial_rows} → {len(df)} rows")
+    if in_streamlit_context():
+        st.info(f"🧹 Cleaning: removed {removed} duplicates, {initial_rows} → {len(df)} rows")
     logger.info("Cleaning complete: %d rows removed, %d remaining", removed, len(df))
     return df

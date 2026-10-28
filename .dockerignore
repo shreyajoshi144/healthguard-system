@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+__pycache__
+*.py[cod]
+.pytest_cache
+logs
+private_storage
+*.db
+*.sqlite
+*.sqlite3
+data/splits/split_manifest.json
+tests

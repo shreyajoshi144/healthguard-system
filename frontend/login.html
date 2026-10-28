@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — HealthGuard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/auth.css" />
+</head>
+<body>
+  <div class="auth-shell">
+    <div class="auth-visual">
+      <a href="/" class="brand">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5 6.5 5 12.5C5 17.5 8.5 21 12 21C15.5 21 19 17.5 19 12.5C19 6.5 12 3 12 3Z" stroke="currentColor" stroke-width="1.6"/><path d="M12 8V16M9 12H15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        HealthGuard
+      </a>
+      <div class="auth-quote">
+        <p>"We finally see what patients are telling us, not just what the average rating says."</p>
+        <span>HealthGuard personal health record</span>
+      </div>
+      <div class="auth-stats">
+        <div class="stat"><div class="num">9</div><div class="label">Health history</div></div>
+        <div class="stat"><div class="num">ML</div><div class="label">+ Rule Fallback</div></div>
+        <div class="stat"><div class="num">Live</div><div class="label">Family access</div></div>
+      </div>
+    </div>
+
+    <div class="auth-form-side">
+      <div class="auth-card">
+        <span class="eyebrow">Personal health account</span>
+        <h1>Welcome back</h1>
+        <p class="lead">Sign in to your private health record.</p>
+
+        <div class="auth-error" id="authError"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="username">Username</label>
+            <input type="text" id="username" autocomplete="username" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input type="password" id="password" autocomplete="current-password" required />
+          </div>
+          <button type="submit" class="btn btn-primary auth-submit" id="submitBtn">Sign In</button>
+        </form>
+
+        <p class="auth-switch">New to HealthGuard? <a href="/register">Create an account</a></p>
+        <p class="auth-switch"><a href="/">← Back to overview</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

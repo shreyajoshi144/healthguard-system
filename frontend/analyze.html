@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analyze — HealthGuard Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/workspace.css" />
+  <link rel="stylesheet" href="/css/analyze.css" />
+</head>
+<body class="workspace-body">
+  <div class="workspace-shell" id="workspaceShell">
+    <aside class="sidebar">
+      <a href="/workspace" class="brand">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3C12 3 5 6.5 5 12.5C5 17.5 8.5 21 12 21C15.5 21 19 17.5 19 12.5C19 6.5 12 3 12 3Z" stroke="currentColor" stroke-width="1.6"/><path d="M12 8V16M9 12H15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        HealthGuard
+      </a>
+      <ul class="sidebar-nav">
+        <li><a href="/workspace" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="3" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="3" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/><rect x="13" y="13" width="8" height="8" rx="2" stroke="currentColor" stroke-width="1.6"/></svg>Overview</a></li>
+        <li><a href="/analyze" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4v16h16M8 15l3-4 3 3 4-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Analyze</a></li>
+        <li><a href="/insights" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>Insights</a></li>
+        <li><a href="/departments" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h2M14 8h2M8 12h2M14 12h2M8 16h2M14 16h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Departments</a></li>
+        <li><a href="/models" class="sidebar-link"><svg viewBox="0 0 24 24" fill="none"><rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.6"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M4.5 19.5l2-2M17.5 6.5l2-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Models</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-user-initial" id="hgUserInitial">?</div>
+          <div class="sidebar-user-name" id="hgUserName">…</div>
+        </div>
+        <button class="sidebar-logout" data-logout>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Log out
+        </button>
+      </div>
+    </aside>
+
+    <div class="workspace-main">
+      <header class="topbar">
+        <button class="sidebar-toggle-btn" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <div>
+          <span class="eyebrow">Instant analysis</span>
+          <h1>Analyze Feedback</h1>
+          <p>Runs through the same trained ML classifier and priority engine as a full CSV upload — no retraining, no file required.</p>
+        </div>
+      </header>
+
+      <main class="workspace-content">
+        <div class="analyze-layout">
+
+          <form class="card analyze-form" id="analyzeForm">
+            <h3>Feedback details</h3>
+            <p class="muted">Paste real or sample patient feedback below.</p>
+
+            <div class="field">
+              <label for="feedbackText">Feedback text</label>
+              <textarea id="feedbackText" maxlength="1500" placeholder="e.g. I waited almost two hours in the emergency room before anyone saw me..." required></textarea>
+              <div class="char-count"><span id="charCount">0</span> / 1500</div>
+              <div class="sample-chips">
+                <button type="button" class="sample-chip" data-sample="wait">Wait time complaint</button>
+                <button type="button" class="sample-chip" data-sample="positive">Positive review</button>
+                <button type="button" class="sample-chip" data-sample="billing">Billing issue</button>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="department">Department</label>
+                <select id="department">
+                  <option>Emergency</option>
+                  <option>Cardiology</option>
+                  <option>Orthopedics</option>
+                  <option>Pediatrics</option>
+                  <option>Radiology</option>
+                  <option>Oncology</option>
+                  <option selected>General Medicine</option>
+                  <option>Maternity</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Overall rating <span class="muted" style="text-transform:none; font-weight:400;">(optional — used for priority scoring only)</span></label>
+              <div class="rating-picker" id="ratingPicker">
+                <button type="button" data-rating="1">1</button>
+                <button type="button" data-rating="2">2</button>
+                <button type="button" data-rating="3">3</button>
+                <button type="button" data-rating="4">4</button>
+                <button type="button" data-rating="5">5</button>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:8px;" id="submitBtn">
+              <span class="spinner" id="submitSpinner"></span>
+              <span id="submitLabel">Analyze Feedback</span>
+            </button>
+            <div class="status-banner" id="formError" style="margin-top:16px;"></div>
+          </form>
+
+          <div>
+            <div class="card result-placeholder" id="resultPlaceholder">
+              <div class="glyph">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M4 4v16h16M8 15l3-4 3 3 4-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <h3>Awaiting input</h3>
+              <p>Submit feedback on the left to see the ML classification, confidence, sentiment, priority, and recommended action.</p>
+            </div>
+
+            <div class="result-panel" id="resultPanel">
+              <div class="card result-hero">
+                <div>
+                  <span class="pill" id="sourcePill">—</span>
+                  <div class="category-tag" id="categoryTag">—</div>
+                  <p class="source-note" id="sourceNote">—</p>
+                </div>
+                <div class="confidence-ring">
+                  <svg width="92" height="92" viewBox="0 0 92 92">
+                    <circle class="track" cx="46" cy="46" r="40" fill="none" stroke-width="7"></circle>
+                    <circle class="fill" id="confCircle" cx="46" cy="46" r="40" fill="none" stroke-width="7" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                  </svg>
+                  <div class="value"><span id="confValue">—</span><span>confidence</span></div>
+                </div>
+              </div>
+
+              <div class="result-metrics">
+                <div class="card metric-tile">
+                  <div class="metric-label">Sentiment</div>
+                  <div class="metric-value" id="sentimentValue">—</div>
+                  <div class="metric-sub" id="sentimentSub">—</div>
+                </div>
+                <div class="card metric-tile">
+                  <div class="metric-label">Priority</div>
+                  <div class="metric-value" id="priorityValue">—</div>
+                  <div class="metric-sub" id="prioritySub">—</div>
+                </div>
+                <div class="card metric-tile">
+                  <div class="metric-label">Satisfaction signal</div>
+                  <div class="metric-value" id="satValue">—</div>
+                  <div class="metric-sub">experimental</div>
+                </div>
+              </div>
+
+              <div class="card action-panel">
+                <h4>🗺️ Recommended action</h4>
+                <p id="actionText">—</p>
+              </div>
+
+              <div class="card sat-panel" id="satPanel" style="display:none;">
+                <span class="pill pill-terracotta">Experimental</span>
+                <h4 style="margin-top:10px;">Predicted satisfaction tier</h4>
+                <div class="tier" id="satTier">—</div>
+                <p class="muted" id="satNote" style="font-size:0.78rem;">—</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/analyze.js"></script>
+</body>
+</html>

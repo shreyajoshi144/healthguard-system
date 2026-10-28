@@ -1,5 +1,29 @@
-__pycache__/
-*.pyc
+# runtime state and generated artifacts (never commit or ship)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
 logs/
+private_storage/
+storage_data/
+data/splits/
+evaluation/healthguard/reports/latest.json
+# secrets
 .env
-.streamlit/
+.env.*
+!.env.example
+*.pem
+*.key
+# python / tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+node_modules/
+.DS_Store
+
+# editor
+.idea/

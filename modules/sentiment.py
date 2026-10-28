@@ -2,6 +2,7 @@ import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import streamlit as st
 from utils.logger import get_logger
+from utils.streamlit_compat import in_streamlit_context
 
 logger = get_logger(__name__)
 analyzer = SentimentIntensityAnalyzer()
@@ -23,7 +24,9 @@ def run_sentiment_analysis(df: pd.DataFrame) -> pd.DataFrame:
     """Apply VADER sentiment to the feedback column."""
     text_col = _find_text_column(df)
     if text_col is None:
-        st.warning("No text column found for sentiment analysis.")
+        if in_streamlit_context():
+            st.warning("No text column found for sentiment analysis.")
+        logger.warning("No text column found for sentiment analysis.")
         df["vader_compound"] = 0.0
         df["sentiment_label"] = "Neutral"
         return df

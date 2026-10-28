@@ -1,0 +1,170 @@
+{
+  "phase": "3B",
+  "report_type": "benchmark_vs_semantic_comparison",
+  "generated_at_utc": "2026-09-05T11:26:43.583326+00:00",
+  "models_compared": {
+    "benchmark": {
+      "model_identifier": "benchmark_tfidf_logistic_regression_issue_classifier_v1",
+      "description": "TF-IDF (1-2 grams) + Logistic Regression, frozen Phase 3A artifact"
+    },
+    "semantic": {
+      "model_identifier": "semantic_spacy_md_logistic_regression_issue_classifier_v1",
+      "description": "en_core_web_md v3.8.0 (frozen pretrained embeddings, mean-pooled) + Logistic Regression"
+    }
+  },
+  "methodology_note": "Both models: same data splits (data/splits/train.csv for fitting, val.csv for model selection only, test.csv for the one-time final benchmark, data/challenge_set.csv as a diagnostic never used for tuning), same classifier family (LogisticRegression, class_weight='balanced'), same random seed. The only real variable is the feature representation. Neither model's metrics were computed differently to favor one over the other.",
+  "results_by_split": {
+    "validation": {
+      "split": "validation",
+      "benchmark": {
+        "n_examples": 53,
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0
+      },
+      "semantic": {
+        "n_examples": 53,
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0
+      },
+      "delta_semantic_minus_benchmark": {
+        "accuracy": 0.0,
+        "macro_precision": 0.0,
+        "macro_recall": 0.0,
+        "macro_f1": 0.0
+      }
+    },
+    "test": {
+      "split": "test",
+      "benchmark": {
+        "n_examples": 53,
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0
+      },
+      "semantic": {
+        "n_examples": 53,
+        "accuracy": 1.0,
+        "macro_precision": 1.0,
+        "macro_recall": 1.0,
+        "macro_f1": 1.0
+      },
+      "delta_semantic_minus_benchmark": {
+        "accuracy": 0.0,
+        "macro_precision": 0.0,
+        "macro_recall": 0.0,
+        "macro_f1": 0.0
+      }
+    },
+    "challenge": {
+      "split": "challenge",
+      "benchmark": {
+        "n_examples": 36,
+        "accuracy": 0.2778,
+        "macro_precision": 0.1903,
+        "macro_recall": 0.3701,
+        "macro_f1": 0.2343
+      },
+      "semantic": {
+        "n_examples": 36,
+        "accuracy": 0.2778,
+        "macro_precision": 0.2018,
+        "macro_recall": 0.3247,
+        "macro_f1": 0.2138
+      },
+      "delta_semantic_minus_benchmark": {
+        "accuracy": 0.0,
+        "macro_precision": 0.0115,
+        "macro_recall": -0.0454,
+        "macro_f1": -0.0205
+      }
+    }
+  },
+  "challenge_by_type_comparison": {
+    "paraphrase": {
+      "n_examples": 6,
+      "benchmark_accuracy": 0.6667,
+      "semantic_accuracy": 0.5,
+      "delta_semantic_minus_benchmark": -0.1667,
+      "benchmark_mean_confidence": 0.1973,
+      "semantic_mean_confidence": 0.3935
+    },
+    "ambiguous": {
+      "n_examples": 5,
+      "benchmark_accuracy": 0.0,
+      "semantic_accuracy": 0.0,
+      "delta_semantic_minus_benchmark": 0.0,
+      "benchmark_mean_confidence": 0.1835,
+      "semantic_mean_confidence": 0.7362
+    },
+    "multi_issue": {
+      "n_examples": 5,
+      "benchmark_accuracy": 0.4,
+      "semantic_accuracy": 0.2,
+      "delta_semantic_minus_benchmark": -0.2,
+      "benchmark_mean_confidence": 0.2156,
+      "semantic_mean_confidence": 0.464
+    },
+    "low_information": {
+      "n_examples": 5,
+      "benchmark_accuracy": 0.0,
+      "semantic_accuracy": 0.0,
+      "delta_semantic_minus_benchmark": 0.0,
+      "benchmark_mean_confidence": 0.1594,
+      "semantic_mean_confidence": 0.8024
+    },
+    "unfamiliar_wording": {
+      "n_examples": 5,
+      "benchmark_accuracy": 0.4,
+      "semantic_accuracy": 0.8,
+      "delta_semantic_minus_benchmark": 0.4,
+      "benchmark_mean_confidence": 0.2167,
+      "semantic_mean_confidence": 0.614
+    },
+    "out_of_domain": {
+      "n_examples": 4,
+      "benchmark_accuracy": 0.0,
+      "semantic_accuracy": 0.0,
+      "delta_semantic_minus_benchmark": 0.0,
+      "benchmark_mean_confidence": 0.1713,
+      "semantic_mean_confidence": 0.6144
+    },
+    "edge_case": {
+      "n_examples": 6,
+      "benchmark_accuracy": 0.3333,
+      "semantic_accuracy": 0.3333,
+      "delta_semantic_minus_benchmark": 0.0,
+      "benchmark_mean_confidence": 0.2057,
+      "semantic_mean_confidence": 0.5037
+    }
+  },
+  "latency_comparison": {
+    "benchmark": {
+      "n_texts": 53,
+      "n_repeats": 3,
+      "per_sample_ms_mean": 0.2594,
+      "batch_total_ms_mean": 1.1209,
+      "batch_per_example_ms_mean": 0.0211
+    },
+    "semantic": {
+      "n_texts": 53,
+      "n_repeats": 3,
+      "per_sample_ms_mean": 0.0402,
+      "batch_total_ms_mean": 1.7706,
+      "batch_per_example_ms_mean": 0.0334,
+      "classifier_predict_only_batch_ms": 0.146,
+      "embed_train_set_total_seconds": 0.0091
+    },
+    "note": "Semantic latency includes embedding (spaCy vector lookup) + classification; benchmark latency includes TF-IDF transform + classification. Both measured the same way (per-sample loop and batch) on the same test-set texts."
+  },
+  "artifact_size_comparison_bytes": {
+    "benchmark_total": 58972,
+    "semantic_trained_classifier_only": 22799,
+    "semantic_plus_embedding_package": 56567477,
+    "note": "'benchmark_total' = TF-IDF vectorizer + classifier (both trained on project data). 'semantic_trained_classifier_only' = just the small classifier head this project trained. 'semantic_plus_embedding_package' additionally counts the ~55MB pretrained spaCy model package as installed \u2014 a fixed, shared dependency, not something retrained per-project, but still part of what must be deployed for the semantic model to run at all."
+  }
+}

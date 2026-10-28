@@ -1,0 +1,24 @@
+{"id": "r-01", "patient": "P1", "query": "What was my hemoglobin?", "relevant": ["hb_2024"]}
+{"id": "r-02", "patient": "P1", "query": "HbA1c results", "relevant": ["hba1c_2024", "hba1c_2023"]}
+{"id": "r-03", "patient": "P1", "query": "Which medications do I take", "relevant": ["rx_metformin", "rx_lisinopril", "med_metformin", "med_lisinopril"]}
+{"id": "r-04", "patient": "P1", "query": "Am I allergic to anything?", "relevant": ["allergy_pen"]}
+{"id": "r-05", "patient": "P1", "query": "cholesterol", "relevant": ["chol"]}
+{"id": "r-06", "patient": "P1", "query": "blood sugar control", "relevant": ["hba1c_2024", "hba1c_2023", "dx_t2dm"]}
+{"id": "r-07", "patient": "P1", "query": "kidney function", "relevant": ["creat"]}
+{"id": "r-08", "patient": "P1", "query": "vitamin levels", "relevant": ["vitd"]}
+{"id": "r-09", "patient": "P1", "query": "knee scan", "relevant": ["ev_mri"]}
+{"id": "r-10", "patient": "P1", "query": "heart doctor visit", "relevant": ["ev_cardio"]}
+{"id": "r-11", "patient": "P1", "query": "blood pressure medicine", "relevant": ["rx_lisinopril", "med_lisinopril", "dx_htn"]}
+{"id": "r-12", "patient": "P1", "query": "diabetes", "relevant": ["dx_t2dm", "rx_metformin", "med_metformin"]}
+{"id": "r-13", "patient": "P1", "query": "metformin dose", "relevant": ["rx_metformin", "med_metformin"]}
+{"id": "r-14", "patient": "P1", "query": "hypertension diagnosis", "relevant": ["dx_htn"]}
+{"id": "r-15", "patient": "P1", "query": "penicillin", "relevant": ["allergy_pen"]}
+{"id": "r-16", "patient": "P2", "query": "seizure medication", "relevant": ["p2_carba", "p2_epilepsy"]}
+{"id": "r-17", "patient": "P2", "query": "hemoglobin", "relevant": ["p2_hb"]}
+{"forbidden": ["p2_epilepsy", "p2_carba"], "id": "a-01", "patient": "P1", "query": "epilepsy seizures carbamazepine", "relevant": []}
+{"forbidden": ["p2_hiv"], "id": "a-02", "patient": "P1", "query": "HIV test result", "relevant": []}
+{"forbidden": ["p2_hb"], "id": "a-03", "patient": "P1", "query": "hemoglobin 9.1", "relevant": ["hb_2024"]}
+{"forbidden": ["gone_asthma"], "id": "a-04", "patient": "P1", "query": "asthma", "relevant": []}
+{"forbidden": ["gone_asthma"], "id": "a-05", "patient": "P1", "query": "wheeze breathing", "relevant": []}
+{"forbidden": ["dx_t2dm", "rx_metformin", "hba1c_2024", "med_metformin"], "id": "a-06", "patient": "P2", "query": "diabetes metformin HbA1c", "relevant": ["p2_diab"]}
+{"forbidden": ["allergy_pen", "rx_lisinopril"], "id": "a-07", "patient": "P2", "query": "penicillin allergy lisinopril", "relevant": []}

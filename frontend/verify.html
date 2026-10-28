@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verify your email — HealthGuard</title><link rel="stylesheet" href="/css/auth.css"></head>
+<body><main class="auth-page"><section class="auth-card"><h1>Verify your email</h1><p id="message">Check your inbox for the HealthGuard verification link. It expires and can only be used once.</p><form id="resendForm"><label>Email<input id="email" type="email" required autocomplete="email"></label><button id="resend" type="submit">Resend verification</button></form><p><a href="/login">Back to sign in</a></p></section></main><script src="/js/api.js"></script><script>
+const email=new URLSearchParams(location.search).get("email")||""; document.getElementById("email").value=email;
+document.getElementById("resendForm").addEventListener("submit",async e=>{e.preventDefault();const b=document.getElementById("resend");b.disabled=true;try{await HealthGuardAPI.resendVerification(document.getElementById("email").value);document.getElementById("message").textContent="If the account can receive verification mail, a new verification link has been sent.";}catch(_){document.getElementById("message").textContent="If the account can receive verification mail, a new verification link has been sent.";}finally{b.disabled=false;}});
+</script></body></html>

@@ -4,10 +4,11 @@ import streamlit as st
 import io
 from utils.logger import get_logger
 from utils.helpers import is_patient_survey
+from utils.streamlit_compat import in_streamlit_context, conditional_cache_data
 
 logger = get_logger(__name__)
 
-@st.cache_data(show_spinner=False)
+@conditional_cache_data
 def load_data(uploaded_file) -> pd.DataFrame:
     """Load CSV or PDF into a DataFrame with patient survey validation."""
     name = uploaded_file.name.lower()
@@ -21,14 +22,17 @@ def load_data(uploaded_file) -> pd.DataFrame:
             df = pd.read_csv(uploaded_file, encoding="utf-8", on_bad_lines="skip")
             valid, reason = is_patient_survey(df)
             if not valid:
-                st.error(f"❌ {reason}")
+                if in_streamlit_context():
+                    st.error(f"❌ {reason}")
                 logger.warning("Dataset rejected: %s", reason)
                 return None
-            st.success(f"✅ Loaded {len(df)} rows, {len(df.columns)} columns. {reason}")
+            if in_streamlit_context():
+                st.success(f"✅ Loaded {len(df)} rows, {len(df.columns)} columns. {reason}")
             logger.info("CSV loaded: %s", df.shape)
             return df
         except Exception as e:
-            st.error(f"CSV load error: {e}")
+            if in_streamlit_context():
+                st.error(f"CSV load error: {e}")
             logger.exception("CSV load failed")
             return None
 
@@ -42,18 +46,22 @@ def load_data(uploaded_file) -> pd.DataFrame:
                         if table:
                             rows.extend(table)
             if not rows:
-                st.error("No tables found in PDF. Please use CSV for best results.")
+                if in_streamlit_context():
+                    st.error("No tables found in PDF. Please use CSV for best results.")
                 return None
             df = pd.DataFrame(rows[1:], columns=rows[0])
             valid, reason = is_patient_survey(df)
             if not valid:
-                st.error(f"❌ {reason}")
+                if in_streamlit_context():
+                    st.error(f"❌ {reason}")
                 return None
-            st.success(f"✅ Extracted {len(df)} rows from PDF")
+            if in_streamlit_context():
+                st.success(f"✅ Extracted {len(df)} rows from PDF")
             logger.info("PDF loaded: %s", df.shape)
             return df
         except Exception as e:
-            st.error(f"PDF load error: {e}")
+            if in_streamlit_context():
+                st.error(f"PDF load error: {e}")
             logger.exception("PDF load failed")
             return None
 
